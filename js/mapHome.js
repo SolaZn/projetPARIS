@@ -7,10 +7,15 @@ $("html").click(function(){
 });
 
 $(function () {
-  $("#board").draggable();
+  $(".draggable").draggable({
+    containment: "document",
+    scroll: false,
+    stack: ".draggable",
+    distance: 0
+  });
   $("#map").droppable({
     drop: function (event, ui) {
-      console.log("DROP EN COURS");
+      alert("DROP EN COURS");
       if (mouseOverDragZone) {
         $(this).addClass("ui-state-highlight").hide();
       }
@@ -72,9 +77,10 @@ mapboxgl.accessToken =
   "pk.eyJ1IjoiYW50aG9ueWtwIiwiYSI6ImNrenNuaDF1djAzNmwyd280dTNpcm9lY2sifQ.HIbK50uFeTfJrQTL4Lizww";
 const map = new mapboxgl.Map({
   container: "map",
-  style: "mapbox://styles/mapbox/streets-v11",
-  center: [0, 0],
-  zoom: 1,
+  style: "mapbox://styles/anthonykp/ckzsnjcmp001q14qmss8n4zc9/draft",
+  center: [ 2.339, 48.854 ],
+  zoom: 11.44
+  ,
 });
 
 const canvas = map.getCanvasContainer();
