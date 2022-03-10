@@ -85,6 +85,10 @@ const map = new mapboxgl.Map({
 
 const canvas = map.getCanvasContainer();
 
+const marker = new mapboxgl.Marker({
+  color: 'blue' // color it red
+  });
+
 map.on("load", () => {
   map.addSource("point", {
     type: "geojson",
@@ -117,6 +121,7 @@ map.on("load", () => {
       "fill-opacity": 0.5,
     },
   });
+  
   // Add a black outline around the polygon.
   map.addLayer({
     id: "outline",
@@ -259,6 +264,21 @@ map.on("load", () => {
     },
   });
 
+  map.addControl(
+    new mapboxgl.GeolocateControl({
+    positionOptions: {
+    enableHighAccuracy: true
+    },
+    // When active the map will receive updates to the device's location as it changes.
+    trackUserLocation: true,
+    // Draw an arrow next to the location dot to indicate which direction the device is heading.
+    showUserHeading: true
+    })
+    );
+
+    map.addControl(new mapboxgl.NavigationControl());
+
+
   // When a click event occurs on a feature in the places layer, open a popup at the
   // location of the feature, with description HTML from its properties.
   map.on("click", "places", (e) => {
@@ -358,5 +378,23 @@ map.on("load", () => {
 
     map.on("touchmove", onMove);
     map.once("touchend", onUp);
+
   });
+
+  function actualLatLgn(){
+    var latlng = map.getCenter();
+    $(".coordonnees").text(latlng.lat + ":" + latlng.lng);
+  }
+
+  function mapCenterMarker(){
+    marker.setLngLat(map.getCenter());
+    marker.addTo(map);
+    
+    actualLatLgn();
+
+    requestAnimationFrame(mapCenterMarker);
+  }
+
+  requestAnimationFrame(() => mapCenterMarker());
+
 });

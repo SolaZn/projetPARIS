@@ -1,4 +1,3 @@
 function displayBlock(){
-  $("#board").css("display", "block");
-  alert("Touché!");
+  console.log("display!")
 }

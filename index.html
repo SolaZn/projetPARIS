@@ -37,43 +37,47 @@
         height: 100vh;
       }
     </style>
-    <div id="container" class="columns is-gapless">
-      <div
-        id="dashboard"
-        class="tile is-vertical column is-2 is-gapless has-background-grey-darker"
-      >
-        <div class="tile is-parent has-text-white">
-          <h1 class="title is-child has-text-white">Mapper!</h1>
-        </div>
-        <div class="tile is-parent is-narrow has-text-white">
-          <div class="tile is-child box">
-            <p>Accueil et annonce des features</p>
+      <div id="container" class="columns is-gapless">
+        <div
+          id="dashboard"
+          class="tile is-vertical column is-2 is-gapless has-background-grey-darker"
+        >
+          <div class="tile is-parent has-text-white">
+            <h1 class="title tile is-child has-text-white">Mapper!</h1>
+          </div>
+          <div class="tile is-parent is-narrow has-text-white">
+            <div class="tile is-child box">
+              <p>Accueil et annonce des features</p>
+              <h2 class="coordonnees subtitle">coordonnees</h2>
+            </div>
+          </div>
+          <div class="tile is-parent is-narrow has-text-white">
+            <div class="tile is-child box">
+              <p class="draggable tile is-child box">Zone draggables</p>
+            </div>
+          </div>
+          <div class="tile is-parent is-narrow has-text-white">
+            <div class="tile is-child box">
+              <p class="tile is-child box">Heure?Boutons de connexion?</p>
+            </div>
           </div>
         </div>
-        <div class="tile is-parent is-narrow has-text-white">
-          <div class="tile is-child box">
-            <p class="draggable tile is-child box">Zone draggables</p>
-          </div>
-        </div>
-        <div class="tile is-parent is-narrow has-text-white">
-          <div class="tile is-child box">
-            <p>Heure?Boutons de connexion?</p>
-          </div>
-        </div>
-      </div>
 
-      <div class="column is-10">
-        <div id="map" class="column is-10">
-          <!-- <div id="mapMessage" class="title">
+        <div class="column is-10">
+          <div id="map" class="column is-10">
+            <!-- <div id="mapMessage" class="title">
           <h1>Droppez votre ville pour lancer l'aventure !</h1>
         </div>-->
+          </div>
+        </div>
+
+        <pre id="coordinates" class="coordinates" style="display: none"></pre>
+        <div id="board" class="column" style="display: none">
+          <p>Drag me to my target</p>
         </div>
       </div>
+      <div class="overlay">
 
-      <pre id="coordinates" class="coordinates" style="display: none"></pre>
-      <div id="board" class="column" style="display: none">
-        <p>Drag me to my target</p>
-      </div>
     </div>
     <script src="js/mapHome.js"></script>
   </body>
