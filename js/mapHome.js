@@ -1,7 +1,9 @@
 // fichier contenant la configuration de base de la map
 var mouseOverDragZone = false;
 $("html").click(function(){
-    $.getScript("script.js", displayBlock);
+    $.getScript("js/script.js", function(){
+      displayBlock();
+    });
 });
 
 $(function () {

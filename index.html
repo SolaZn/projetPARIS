@@ -8,37 +8,19 @@
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css"
+    />
     <link
       href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="css/game.css" />
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
-    <!--<script src='https://api.mapbox.com/mapbox.js/plugins/turf/v3.0.11/turf.min.js'></script>-->
-	<script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
-<body class="columns">
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-      }
-      #map {
-        display: flex;
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 85%;
-      }
-      #board {
-        display: flex;
-        position: absolute;
-        width: 15%;
-        background-color: white;
-        color: black;
-      }
-    </style>
+    <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
   </head>
   <body>
     <style>
@@ -46,13 +28,47 @@
         max-width: 400px;
         font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
       }
+      .is-full-height {
+        height: 100vh;
+      }
+      html,
+      body,
+      #container {
+        height: 100vh;
+      }
     </style>
+    <div id="container" class="columns is-gapless">
+      <div
+        id="dashboard"
+        class="tile is-vertical column is-2 is-gapless has-background-grey-darker"
+      >
+      
+      <div class="tile is-parent has-text-white">
+        <h1 class="title is-child has-text-white">projet P.A.R.I.S</h1>
+      </div>
+        <div class="tile is-parent is-narrow has-text-white">
+          <div class="tile is-child box">
+            <p>Accueil et annonce des features</p>
+          </div>
+        </div>
+        <div class="tile is-parent is-narrow has-text-white">
+          <div class="tile is-child box">
+            <p>Zone draggables</p>
+          </div>
+        </div>
+        <div class="tile is-parent is-narrow has-text-white">
+          <div class="tile is-child box">
+            <p>Heure?Boutons de connexion?</p>
+          </div>
+        </div>
+      </div>
 
-    <div id="map" class="column"></div>
-    <pre id="coordinates" class="coordinates column"></pre>
+      <div id="map" class="column is-10"></div>
 
-    <div id="board" class="column" style="display: none;">
-      <p>Drag me to my target</p>
+      <pre id="coordinates" class="coordinates" style="display: none"></pre>
+      <div id="board" class="column" style="display: none">
+        <p>Drag me to my target</p>
+      </div>
     </div>
     <script src="js/mapHome.js"></script>
   </body>
