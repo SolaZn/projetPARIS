@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
   <head>
     <meta charset="utf-8" />
     <title>Mapper !</title>
@@ -37,56 +37,65 @@
         height: 100vh;
       }
     </style>
-      <div id="container" class="columns is-gapless">
-        <div
-          id="dashboard"
-          class="tile is-vertical column is-2 is-gapless has-background-grey-darker"
-        >
-          <div class="mapper tile is-parent is-vertical has-text-white">
-            <div class="box has-background-grey-darker">
-            <h1 class="title tile is-child has-text-white has-text-centered">Mapper!</h1>
+    <div id="container" class="columns is-gapless">
+      <div
+        id="dashboard"
+        class="tile is-vertical column is-2 is-gapless has-background-grey-darker"
+      >
+        <div class="mapper tile is-parent is-vertical has-text-white">
+          <div class="box has-background-grey-darker">
+            <h1 class="title tile is-child has-text-white has-text-centered">
+              Mapper!
+            </h1>
+            <p class="coordonnees has-size-7 has-text-centered has-text-grey is-family-code"></p>
           </div>
-          <div class="tile box buttons are-large is-align-items-center is-flex">
-            <button id="location" class="button is-fullwidth box">🔵 Où suis-je ?</button>
-            <button id="favori" class="button is-fullwidth box" style="display: none;">⭐ Ajouter aux favoris</button>
-          </div>
-
-          </div>
-          <div class="tile is-parent is-narrow has-text-white">
-            <div class="tile is-child box">
-              <p>Accueil et annonce des features</p>
-              <h2 class="coordonnees subtitle">coordonnees</h2>
-              <h3 class="adresse subtitle" style="display: none;"></h3>
-            </div>
-          </div>
-          <div class="tile is-parent is-narrow has-text-white">
-            <div class="tile is-child box">
-              <p class="draggable tile is-child box">Zone draggables</p>
-            </div>
-          </div>
-          <div class="tile is-parent is-narrow has-text-white">
-            <div class="tile is-child box">
-              <p class="tile is-child box">Heure?Boutons de connexion?</p>
-            </div>
+          <div
+            class="tile box buttons are-normal is-align-items-center is-flex"
+          >
+            <button id="location" class="button is-fullwidth is-responsive box">
+              🔵 Où suis-je ?
+            </button>
+            <button
+              id="favori"
+              class="button is-fullwidth is-responsive box"
+              style="display: none"
+            >
+              ⭐ Ajouter aux favoris
+            </button>
           </div>
         </div>
-
-        <div class="column is-10">
-          <div id="map" class="column is-10">
-            <!-- <div id="mapMessage" class="title">
-          <h1>Droppez votre ville pour lancer l'aventure !</h1>
-        </div>-->
+        <div class="tile is-parent is-narrow has-text-white">
+          <div class="tile is-child box">
+            <p class="adresse has-size-7 is-family-code has-text-grey" style="display: none">Dernier point posé :</p>
+            <p id="adresse" class="adresse has-size-2" style="display: none"></p>
           </div>
         </div>
-
-        <pre id="coordinates" class="coordinates" style="display: none"></pre>
-        <div id="board" class="column" style="display: none">
-          <p>Drag me to my target</p>
+        <div class="tile is-parent is-narrow has-text-white">
+          <div class="tile is-child box">
+            <p class="draggable tile is-child box">Zone draggables</p>
+          </div>
+        </div>
+        <div class="tile is-parent is-narrow has-text-white">
+          <div class="tile is-child box">
+            <p class="tile is-child box">Heure?Boutons de connexion?</p>
+          </div>
         </div>
       </div>
-      <div class="overlay">
 
+      <div class="column is-10">
+        <div id="map" class="column is-10">
+          <!-- <div id="mapMessage" class="title">
+          <h1>Droppez votre ville pour lancer l'aventure !</h1>
+        </div>-->
+        </div>
+      </div>
+
+      <pre id="coordinates" class="coordinates" style="display: none"></pre>
+      <div id="board" class="column" style="display: none">
+        <p>Drag me to my target</p>
+      </div>
     </div>
+    <div id="overlay"></div>
     <script src="js/mapHome.js"></script>
   </body>
 </html>

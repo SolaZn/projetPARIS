@@ -380,16 +380,28 @@ map.on("load", () => {
 
   function actualLatLgn() {
     var latlng = map.getCenter();
-    $(".coordonnees").text(latlng.lat + ":" + latlng.lng);
+    $(".coordonnees").text(latlng.lat.toFixed(3) + ":" + latlng.lng.toFixed(3));
+  }
+
+  function favHide(){
+    $("#favori").css("display", "none");
+  }
+
+  function placeHide(){
+    $(".adresse").css("display", "none");
   }
 
   function mapCenterMarker() {
+    if(marker.getLngLat != map.getCenter()){
     marker.setLngLat(map.getCenter());
     marker.addTo(map);
-
+    
     actualLatLgn();
+    
 
     requestAnimationFrame(mapCenterMarker);
+    }
+
   }
 
   requestAnimationFrame(() => mapCenterMarker());
@@ -397,6 +409,13 @@ map.on("load", () => {
   function location() {
     var latlng = map.getCenter();
     $("#favori").css("display","flex");
+
+    const newMarker = new mapboxgl.Marker({
+      color: 'yellow'
+    });
+
+    newMarker.setLngLat(map.getCenter());
+    newMarker.addTo(map);
 
     $.ajax({
       type: "GET",
@@ -406,11 +425,19 @@ map.on("load", () => {
       latlng.lng,
       success: function (xml) {
         adresse = $(xml).find("result").text();
-        $(".adresse").text(adresse); 
+        $("#adresse").text(adresse); 
         $(".adresse").css("display","block");
       },
     });
   }
 
   $("#location").click(location);
+
+  function on() {
+    document.getElementById("overlay").style.display = "block";
+  }
+  
+  function off() {
+    document.getElementById("overlay").style.display = "none";
+  }
 });
