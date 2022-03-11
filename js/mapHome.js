@@ -1,9 +1,9 @@
 // fichier contenant la configuration de base de la map
 var mouseOverDragZone = false;
-$("html").click(function(){
-    $.getScript("js/script.js", function(){
-      displayBlock();
-    });
+$("html").click(function () {
+  $.getScript("js/script.js", function () {
+    displayBlock();
+  });
 });
 
 $(function () {
@@ -11,7 +11,7 @@ $(function () {
     containment: "document",
     scroll: false,
     stack: ".draggable",
-    distance: 0
+    distance: 0,
   });
   $("#map").droppable({
     drop: function (event, ui) {
@@ -78,16 +78,15 @@ mapboxgl.accessToken =
 const map = new mapboxgl.Map({
   container: "map",
   style: "mapbox://styles/anthonykp/ckzsnjcmp001q14qmss8n4zc9/draft",
-  center: [ 2.339, 48.854 ],
-  zoom: 11.44
-  ,
+  center: [2.339, 48.854],
+  zoom: 11.44,
 });
 
 const canvas = map.getCanvasContainer();
 
 const marker = new mapboxgl.Marker({
-  color: 'blue' // color it red
-  });
+  color: "blue", // color it red
+});
 
 map.on("load", () => {
   map.addSource("point", {
@@ -121,7 +120,7 @@ map.on("load", () => {
       "fill-opacity": 0.5,
     },
   });
-  
+
   // Add a black outline around the polygon.
   map.addLayer({
     id: "outline",
@@ -266,18 +265,17 @@ map.on("load", () => {
 
   map.addControl(
     new mapboxgl.GeolocateControl({
-    positionOptions: {
-    enableHighAccuracy: true
-    },
-    // When active the map will receive updates to the device's location as it changes.
-    trackUserLocation: true,
-    // Draw an arrow next to the location dot to indicate which direction the device is heading.
-    showUserHeading: true
+      positionOptions: {
+        enableHighAccuracy: false,
+      },
+      // When active the map will receive updates to the device's location as it changes.
+      trackUserLocation: true,
+      // Draw an arrow next to the location dot to indicate which direction the device is heading.
+      showUserHeading: true,
     })
-    );
+  );
 
-    map.addControl(new mapboxgl.NavigationControl());
-
+  map.addControl(new mapboxgl.NavigationControl());
 
   // When a click event occurs on a feature in the places layer, open a popup at the
   // location of the feature, with description HTML from its properties.
@@ -378,18 +376,17 @@ map.on("load", () => {
 
     map.on("touchmove", onMove);
     map.once("touchend", onUp);
-
   });
 
-  function actualLatLgn(){
+  function actualLatLgn() {
     var latlng = map.getCenter();
     $(".coordonnees").text(latlng.lat + ":" + latlng.lng);
   }
 
-  function mapCenterMarker(){
+  function mapCenterMarker() {
     marker.setLngLat(map.getCenter());
     marker.addTo(map);
-    
+
     actualLatLgn();
 
     requestAnimationFrame(mapCenterMarker);
@@ -397,4 +394,23 @@ map.on("load", () => {
 
   requestAnimationFrame(() => mapCenterMarker());
 
+  function location() {
+    var latlng = map.getCenter();
+    $("#favori").css("display","flex");
+
+    $.ajax({
+      type: "GET",
+      url:"https://nominatim.openstreetmap.org/reverse?lat=" +
+      latlng.lat +
+      "&lon=" +
+      latlng.lng,
+      success: function (xml) {
+        adresse = $(xml).find("result").text();
+        $(".adresse").text(adresse); 
+        $(".adresse").css("display","block");
+      },
+    });
+  }
+
+  $("#location").click(location);
 });

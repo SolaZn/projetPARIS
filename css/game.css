@@ -24,3 +24,7 @@ div::-webkit-scrollbar {
 #container{
   background-color: black;
 }
+
+.mapper{
+  height: 100%;
+}

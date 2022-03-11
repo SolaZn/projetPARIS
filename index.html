@@ -42,13 +42,21 @@
           id="dashboard"
           class="tile is-vertical column is-2 is-gapless has-background-grey-darker"
         >
-          <div class="tile is-parent has-text-white">
-            <h1 class="title tile is-child has-text-white">Mapper!</h1>
+          <div class="mapper tile is-parent is-vertical has-text-white">
+            <div class="box has-background-grey-darker">
+            <h1 class="title tile is-child has-text-white has-text-centered">Mapper!</h1>
+          </div>
+          <div class="tile box buttons are-large is-align-items-center is-flex">
+            <button id="location" class="button is-fullwidth box">🔵 Où suis-je ?</button>
+            <button id="favori" class="button is-fullwidth box" style="display: none;">⭐ Ajouter aux favoris</button>
+          </div>
+
           </div>
           <div class="tile is-parent is-narrow has-text-white">
             <div class="tile is-child box">
               <p>Accueil et annonce des features</p>
               <h2 class="coordonnees subtitle">coordonnees</h2>
+              <h3 class="adresse subtitle" style="display: none;"></h3>
             </div>
           </div>
           <div class="tile is-parent is-narrow has-text-white">
