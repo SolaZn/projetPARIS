@@ -6,8 +6,34 @@ $("html").click(function () {
   });
 });
 
+let registeredMarkers = [];
+
+function getMarkerList() {
+  for(marker in registeredMarkers){
+    var latlng =  marker.getLngLat();
+    var div =  "<div class=\"tile is-fullwidth\">" + latlng.lat.toFixed(3) + ":"+ latlng.lng.toFixed(3) + "</div>";
+    $("#listeMarqueurs").append(div);
+  }
+  $( "#listeMarqueurs" ).dialog();
+}
+
+
 $(function () {
   $(".draggable").draggable({
+    revert : function(event, ui) {
+      // on older version of jQuery use "draggable"
+      // $(this).data("draggable")
+      // on 2.x versions of jQuery use "ui-draggable"
+      // $(this).data("ui-draggable")
+      $(this).data("uiDraggable").originalPosition = {
+          top : 0,
+          left : 0
+      };
+      // return boolean
+      return !event;
+      // that evaluate like this:
+      // return event !== false ? false : true;
+  },
     containment: "document",
     scroll: false,
     stack: ".draggable",
@@ -416,6 +442,12 @@ map.on("load", () => {
 
     newMarker.setLngLat(map.getCenter());
     newMarker.addTo(map);
+
+    alert(registeredMarkers.length);
+    registeredMarkers.push(newMarker);
+    alert(registeredMarkers.length);
+
+    getMarkerList();
 
     $.ajax({
       type: "GET",

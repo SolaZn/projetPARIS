@@ -2,7 +2,7 @@
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
-    <title>Mapper !</title>
+    <title>Mapper! - La carte parisienne de tourisme</title>
     <meta
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="css/game.css" />
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
     <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
 
@@ -108,36 +110,45 @@
         </div>
       </div>
 
-      
-
-
       <pre id="coordinates" class="coordinates" style="display: none"></pre>
       <div id="board" class="column" style="display: none">
         <p>Drag me to my target</p>
       </div>
     </div>
+    <div id="listeMarqueurs" class="modal" title="Mes marqueurs">
+      Liste
+    </div>
     <div id="overlay">
-      <form class="box">  
-        <button class="delete"></button>
+      <form class="box" onsubmit="handle(); return false;">
         <div class="field">
           <label class="label">Email</label>
           <div class="control">
-            <input class="input" type="email" placeholder="Email">
+            <input class="input" type="email" placeholder="Email" />
           </div>
         </div>
-      
         <div class="field">
-          <label class="label">Password</label>
+          <label class="label">Mot de passe</label>
           <div class="control">
-            <input class="input" type="password" placeholder="********">
+            <input class="input" type="password" />
           </div>
-        </div>
-      
-        <button class="button is-primary">Sign in</button>
-        <button class="button is-primary">Sign up</button>
+
+        <input type="submit" value="Se connecter" onclick="this.form.submitted=this.value;" class="button is-primary"/>
+        <input type="submit" value="S'inscrire"onclick="this.form.submitted=this.value;" class="button is-primary"/>
       </form>
+
+      </div>
     </div>
     <script src="js/mapHome.js"></script>
     <script type="module" src="js/connexion.js"></script>
+    <script>
+      function handle(){
+      if(this.form.submitted == 'Se connecter' ){
+          handleLogin();
+        } 
+        if(this.form.submitted == 'S\'inscrire'){
+          handleSignUp();
+        }
+      }
+    </script>
   </body>
 </html>
