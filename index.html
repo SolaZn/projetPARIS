@@ -27,6 +27,9 @@
     <script src="https://kit.fontawesome.com/d9b9925bfe.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
     <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+    <script src="js/lib/moment.js"></script>
+    <script src="js/lib/moment-timezone-with-data.js"></script>
+    
 
     <script src="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.js"></script>
     <link
@@ -54,6 +57,7 @@
       <div
         id="dashboard"
         class="tile is-vertical column is-2 is-gapless has-background-grey-darker"
+        style="overflow-x: scroll;"
       >
         <div class="mapper tile is-parent is-vertical has-text-white">
           <div class="box has-background-grey-darker">
@@ -131,7 +135,7 @@
         </div>
         <div class="tile is-parent is-narrow has-text-white">
           <div
-            class="tile box buttons are-normal is-align-items-center is-flex" style="max-height: 75%;"
+            class="tile box buttons are-normal is-align-items-center is-flex"
           >
             <button id="location" class="button is-fullwidth is-responsive box has-background-success	has-text-white">
               <i class="fa-solid fa-arrow-right-to-bracket"></i> Se connecter

@@ -1,4 +1,5 @@
 $("#listeFavori").click(showFavori);
+var moment; 
 
 function flyToMarker(value) {
   var coordinates = value;
@@ -18,11 +19,14 @@ function showFavori() {
 
 var mouseOverDragZone = false;
 
-function getTime(offset)
+function getTime(timeZone)
 {
+    var moments = moment.tz(timeZone).utcOffset();
+    var offset = moments.utcOffset();
+
   var d = new Date();
   localTime = d.getTime();
-  localOffset = d.getTimezoneOffset() * 60000;
+  localOffset = offset * 60000;
 
   // obtain UTC time in msec
   utc = localTime + localOffset;
@@ -33,6 +37,28 @@ function getTime(offset)
   utc = new Date(utc);
   // return time as a string
   $("#heureLocale").text(nd.toLocaleString());
+}
+
+function actualLatLgn() {
+  var latlng = map.getCenter();
+  $(".coordonnees").text(latlng.lat.toFixed(3) + ":" + latlng.lng.toFixed(3));
+  return latlng;
+}
+
+
+function updateTimeOffset(){
+  var location = actualLatLgn();
+
+  $.ajax({
+    type: "GET",
+    url: "https://api.mapbox.com/v4/mapbox.mapbox-streets-v7/tilequery/"
+    + location.lng + "," + location.lat + 
+    ".json?access_token=pk.eyJ1IjoiYW50aG9ueWtwIiwiYSI6ImNrenNuaDF1djAzNmwyd280dTNpcm9lY2sifQ.HIbK50uFeTfJrQTL4Lizww",
+    success: function (json) {
+      const userTimezone = json.features[0].properties.TZID;
+      getTime(userTimezone);
+    },
+  });
 }
 
 $(function () {
@@ -134,8 +160,14 @@ const marker = new mapboxgl.Marker({
 
 let registeredMarkers = [];
 
+$(document).ready(function(){
+  moment = window.moment;
+
+});
 // la configuration de base de la map
 map.on("load", () => {
+  console.log(window);
+
 
   map.setLayoutProperty('country-label', 'text-field', [
     'format',
@@ -442,24 +474,6 @@ map.on("load", () => {
     map.once("touchend", onUp);
   });
 
-  function actualLatLgn() {
-    var latlng = map.getCenter();
-    $(".coordonnees").text(latlng.lat.toFixed(3) + ":" + latlng.lng.toFixed(3));
-    $.ajax({
-      type: "GET",
-      addressdetails: 1,
-      url:
-        "https://nominatim.openstreetmap.org/reverse?lat=" +
-        latlng.lat +
-        "&lon=" +
-        latlng.lng,
-      success: function (xml) {
-        var pays = $(xml).find("addressparts").find("country").text();
-        $("#paysLocal").text(pays);
-      },
-    });
-  }
-
   function favHide() {
     $("#favori").css("display", "none");
   }
@@ -589,6 +603,13 @@ map.on("load", () => {
       map.setView(mark, 20);
     });
   });*/
+
+  function timerTimeZone(){
+    updateTimeOffset();
+    setTimeout(timerTimeZone, 5000);
+  }
+  setTimeout(timerTimeZone, 5000)
+
 });
 
 function adresseParser(xml) {
