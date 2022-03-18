@@ -462,6 +462,7 @@ map.on("load", () => {
         latlng.lng,
       success: function (xml) {
         adresse = $(xml).find("result").text();
+        $("#messageAdresse").text("Dernier point posé :");
         $("#adresse").text(adresse);
         $(".adresse").css("display", "block");
       },

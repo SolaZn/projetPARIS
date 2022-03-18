@@ -60,3 +60,13 @@ ul.separator li:last-child {
 #listeMarqueurs{
   overflow-y:auto;
 }
+
+#map-overlay {
+  font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  position: absolute;
+  width: 200px;
+  top: 1%;
+  left: 17%;
+  padding: 10px;
+  background-color: hsla(0, 0%, 12%, 0.9);
+  }

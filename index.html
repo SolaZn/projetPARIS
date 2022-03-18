@@ -88,10 +88,10 @@
         <div class="tile is-parent is-narrow has-text-white">
           <div class="tile is-child box">
             <p
+              id="messageAdresse"
               class="adresse has-size-7 is-family-code has-text-grey"
-              style="display: none"
             >
-              Dernier point posé :
+              Ici s'affichera votre dernier point posé 
             </p>
             <p
               id="adresse"
@@ -148,15 +148,14 @@
 
       <div class="column is-10">
         <div id="map" class="column is-10">
-          <!-- <div id="mapMessage" class="title">
-          <h1>Droppez votre ville pour lancer l'aventure !</h1>
-        </div>-->
         </div>
       </div>
 
       <pre id="coordinates" class="coordinates" style="display: none"></pre>
-    
-     
+      <div id="map-overlay" class="box has-text-centered has-text-grey">
+        <p>En <strong>{pays récupéré}</strong>, nous sommes le</p>
+        <h2 class="subtitle has-text-grey-lighter">{DATE} à {HEURE}</h2>
+      </div>
     </div>
     <section id="listeMarqueurs" class="modal" title="Mes marqueurs">
         <p id="messageAucun">Aucun marqueur enregistré</p>
