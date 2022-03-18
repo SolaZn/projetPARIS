@@ -1,5 +1,6 @@
 $("#listeFavori").click(showFavori);
 var moment; 
+var globaltimeZone = "Europe/Paris";
 
 function flyToMarker(value) {
   var coordinates = value;
@@ -19,24 +20,38 @@ function showFavori() {
 
 var mouseOverDragZone = false;
 
-function getTime(timeZone)
-{
-    var moments = moment.tz(timeZone).utcOffset();
-    var offset = moments.utcOffset();
+function getTime(timeZone){
+  var latlng = map.getCenter();
+  $.ajax({
+    type: "GET",
+    url:
+      "https://nominatim.openstreetmap.org/reverse?lat=" +
+      latlng.lat +
+      "&lon=" +
+      latlng.lng,
+    success: function (xml) {
+      country = $(xml).find("addressparts").find("country").text();
+      $("#paysLocal").text(country + " : nous sommes le ");
+    },
+  });
 
-  var d = new Date();
-  localTime = d.getTime();
-  localOffset = offset * 60000;
+  globaltimeZone = timeZone;
 
-  // obtain UTC time in msec
-  utc = localTime + localOffset;
-  // create new Date object for different city
-  // using supplied offset
-  var nd = new Date(utc + (3600000*offset));
-  //nd = 3600000 + nd;
-  utc = new Date(utc);
+  var d = new Date().toUTCString();
+  moment.locale("fr");
+  var date = moment.utc(d).tz(globaltimeZone).format('DD/MM/YYYY à HH:mm:ss');
+
   // return time as a string
-  $("#heureLocale").text(nd.toLocaleString());
+  $("#heureLocale").text(date);
+}
+
+function getTimeNow(){
+  var d = new Date().toUTCString();
+  moment.locale("fr");
+  var date = moment.utc(d).tz(globaltimeZone).format('DD/MM/YYYY à HH:mm:ss');
+
+  // return time as a string
+  $("#heureLocale").text(date);
 }
 
 function actualLatLgn() {
@@ -51,7 +66,7 @@ function updateTimeOffset(){
 
   $.ajax({
     type: "GET",
-    url: "https://api.mapbox.com/v4/mapbox.mapbox-streets-v7/tilequery/"
+    url: "https://api.mapbox.com/v4/examples.4ze9z6tv/tilequery/"
     + location.lng + "," + location.lat + 
     ".json?access_token=pk.eyJ1IjoiYW50aG9ueWtwIiwiYSI6ImNrenNuaDF1djAzNmwyd280dTNpcm9lY2sifQ.HIbK50uFeTfJrQTL4Lizww",
     success: function (json) {
@@ -62,7 +77,7 @@ function updateTimeOffset(){
 }
 
 $(function () {
-  getTime(1);
+  getTime("Europe/Paris");
 
   $(".draggable").draggable({
     revert:true, 
@@ -84,25 +99,6 @@ $(function () {
         center: latlng,
         essential: true,
         zoom: 11.2,
-      });
-     
-      var offset = ui.draggable.attr("offset");
-      getTime(offset);
-
-      $.ajax({
-        type: "GET",
-        url:
-          "https://nominatim.openstreetmap.org/reverse?lat=" +
-          latlng[1] +
-          "&lon=" +
-          latlng[0],
-        success: function (xml) {
-          adresse = $(xml).find("result").text();
-          boup = [];
-          boup= adresse.split(",");
-          pays= boup[boup.length-1];
-          $("#paysLocal").text("En "+pays+", nous sommes le ");
-        },
       });
     }
   });
@@ -624,9 +620,14 @@ map.on("load", () => {
 
   function timerTimeZone(){
     updateTimeOffset();
-    setTimeout(timerTimeZone, 5000);
+    setTimeout(timerTimeZone, 3000);
   }
-  setTimeout(timerTimeZone, 5000)
+  function timerTime(){
+    getTimeNow();
+    setTimeout(timerTime, 1000);
+  }
+  setTimeout(timerTime, 1000)
+  setTimeout(timerTimeZone, 3000)
 
 });
 
