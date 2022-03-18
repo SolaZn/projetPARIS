@@ -62,6 +62,8 @@ function updateTimeOffset(){
 }
 
 $(function () {
+  getTime(1);
+
   $(".draggable").draggable({
     revert:true, 
     containment: "document",
@@ -86,6 +88,22 @@ $(function () {
      
       var offset = ui.draggable.attr("offset");
       getTime(offset);
+
+      $.ajax({
+        type: "GET",
+        url:
+          "https://nominatim.openstreetmap.org/reverse?lat=" +
+          latlng[1] +
+          "&lon=" +
+          latlng[0],
+        success: function (xml) {
+          adresse = $(xml).find("result").text();
+          boup = [];
+          boup= adresse.split(",");
+          pays= boup[boup.length-1];
+          $("#paysLocal").text("En "+pays+", nous sommes le ");
+        },
+      });
     }
   });
 });
