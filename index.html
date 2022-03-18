@@ -107,22 +107,22 @@
       </div>-->
         <div class="tile is-parent is-narrow has-text-white">
           <div class="columns tile is-child box is-multiline">
-            <div class="column draggable tile is-child box is-6" value="13.39382710467683,52.51386579903857"><a href="https://www.flaticon.com/fr/icones-gratuites/allemagne" title="allemagne icônes"></a>
+            <div class="column draggable tile is-child box is-6" value="13.39382710467683,52.51386579903857" offset=1 ><a href="https://www.flaticon.com/fr/icones-gratuites/allemagne" title="allemagne icônes"></a>
               <figure class="image">
                 <img src="content/brandebourg.png">
               </figure>
             </div>
-            <div class="column draggable tile is-child box is-6" value="2.352,48.856"><a href="https://www.flaticon.com/fr/icones-gratuites/paris" title="paris icônes"></a>
+            <div class="column draggable tile is-child box is-6" value="2.352,48.856" offset=1 ><a href="https://www.flaticon.com/fr/icones-gratuites/paris" title="paris icônes"></a>
               <figure class="image">
                 <img src="content/tour-eiffel (1).png">
               </figure>
             </div>
-            <div class="column draggable tile is-child box is-6" value="139.7639853049959,35.69605879759992"><a href="https://www.flaticon.com/free-icons/tokyo-tower" title="tokyo tower icons"></a>
+            <div class="column draggable tile is-child box is-6" value="139.7639853049959,35.69605879759992" offset=9><a href="https://www.flaticon.com/free-icons/tokyo-tower" title="tokyo tower icons"></a>
               <figure class="image">
                 <img src="content/tokyo-tower.png">
               </figure>
             </div>
-            <div class="column draggable tile is-child box is-6" value="-74.00567269723963,40.71113831868968"><a href="https://www.flaticon.com/free-icons/statue-of-liberty" title="statue-of-liberty icons"></a>
+            <div class="column draggable tile is-child box is-6" value="-74.00567269723963,40.71113831868968" offset=-4 ><a href="https://www.flaticon.com/free-icons/statue-of-liberty" title="statue-of-liberty icons"></a>
               <figure class="image">
                 <img src="content/statue-of-liberty.png">
               </figure>
@@ -153,8 +153,8 @@
 
       <pre id="coordinates" class="coordinates" style="display: none"></pre>
       <div id="map-overlay" class="box has-text-centered has-text-grey">
-        <p>En <strong>{pays récupéré}</strong>, nous sommes le</p>
-        <h2 class="subtitle has-text-grey-lighter">{DATE} à {HEURE}</h2>
+        <p id="paysLocal" >En <strong>{pays récupéré}</strong>, nous sommes le</p>
+        <h2 id="heureLocale" class="subtitle has-text-grey-lighter">{DATE} à {HEURE}</h2>
       </div>
     </div>
     <section id="listeMarqueurs" class="modal" title="Mes marqueurs">
@@ -174,7 +174,7 @@
     </section>
 
     <div id="overlay">
-      <form class="box" onsubmit="handle(); return false;">
+      <form class="box" onsubmit="handle(); //return false;">
         <div class="field">
           <label class="label">Email</label>
           <div class="control">

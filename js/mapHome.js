@@ -18,6 +18,23 @@ function showFavori() {
 
 var mouseOverDragZone = false;
 
+function getTime(offset)
+{
+  var d = new Date();
+  localTime = d.getTime();
+  localOffset = d.getTimezoneOffset() * 60000;
+
+  // obtain UTC time in msec
+  utc = localTime + localOffset;
+  // create new Date object for different city
+  // using supplied offset
+  var nd = new Date(utc + (3600000*offset));
+  //nd = 3600000 + nd;
+  utc = new Date(utc);
+  // return time as a string
+  $("#heureLocale").text(nd.toLocaleString());
+}
+
 $(function () {
   $(".draggable").draggable({
     revert:true, 
@@ -33,7 +50,6 @@ $(function () {
     accept: ".draggable",
     drop: function (event, ui) {
       $(this).find('').append(ui.draggable);
-
       var coordinates = ui.draggable.attr("value");
       var latlng = coordinates.split(",");
       map.flyTo({
@@ -41,7 +57,10 @@ $(function () {
         essential: true,
         zoom: 11.2,
       });
-      }
+     
+      var offset = ui.draggable.attr("offset");
+      getTime(offset);
+    }
   });
 });
 
@@ -426,6 +445,19 @@ map.on("load", () => {
   function actualLatLgn() {
     var latlng = map.getCenter();
     $(".coordonnees").text(latlng.lat.toFixed(3) + ":" + latlng.lng.toFixed(3));
+    $.ajax({
+      type: "GET",
+      addressdetails: 1,
+      url:
+        "https://nominatim.openstreetmap.org/reverse?lat=" +
+        latlng.lat +
+        "&lon=" +
+        latlng.lng,
+      success: function (xml) {
+        var pays = $(xml).find("addressparts").find("country").text();
+        $("#paysLocal").text(pays);
+      },
+    });
   }
 
   function favHide() {
