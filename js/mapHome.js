@@ -36,6 +36,8 @@ function getTime(offset)
 }
 
 $(function () {
+  getTime(1);
+
   $(".draggable").draggable({
     revert:true, 
     containment: "document",
@@ -60,6 +62,22 @@ $(function () {
      
       var offset = ui.draggable.attr("offset");
       getTime(offset);
+
+      $.ajax({
+        type: "GET",
+        url:
+          "https://nominatim.openstreetmap.org/reverse?lat=" +
+          latlng[1] +
+          "&lon=" +
+          latlng[0],
+        success: function (xml) {
+          adresse = $(xml).find("result").text();
+          boup = [];
+          boup= adresse.split(",");
+          pays= boup[boup.length-1];
+          $("#paysLocal").text("En "+pays+", nous sommes le ");
+        },
+      });
     }
   });
 });
@@ -445,19 +463,7 @@ map.on("load", () => {
   function actualLatLgn() {
     var latlng = map.getCenter();
     $(".coordonnees").text(latlng.lat.toFixed(3) + ":" + latlng.lng.toFixed(3));
-    $.ajax({
-      type: "GET",
-      addressdetails: 1,
-      url:
-        "https://nominatim.openstreetmap.org/reverse?lat=" +
-        latlng.lat +
-        "&lon=" +
-        latlng.lng,
-      success: function (xml) {
-        var pays = $(xml).find("addressparts").find("country").text();
-        $("#paysLocal").text(pays);
-      },
-    });
+    
   }
 
   function favHide() {
