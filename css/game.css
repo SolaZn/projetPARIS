@@ -37,3 +37,26 @@ div::-webkit-scrollbar {
   z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
   cursor: pointer; /* Add a pointer on hover */
 }
+
+i{
+  padding: 5px;
+}
+
+ul.separator {
+	list-style: none;
+	padding: 0;
+	width: 100%;
+}
+
+ul.separator li {
+	padding: .5em 0;
+	border-bottom: 1px solid #CCC;
+}
+
+ul.separator li:last-child {
+	border-bottom: 0;
+}
+
+#listeMarqueurs{
+  overflow-y:auto;
+}

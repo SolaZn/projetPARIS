@@ -1,3 +1,3 @@
 function displayBlock(){
-  console.log("display!")
+  console.log("display!");
 }

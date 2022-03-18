@@ -1,51 +1,47 @@
-// fichier contenant la configuration de base de la map
-var mouseOverDragZone = false;
-$("html").click(function () {
-  $.getScript("js/script.js", function () {
-    displayBlock();
+$("#listeFavori").click(showFavori);
+
+function flyToMarker() {
+  var coordinates = event.target.value;
+  var latlng = coordinates.split(",");
+
+  map.flyTo({
+    center: latlng,
+    essential: true,
+    zoom: 12,
   });
-});
-
-let registeredMarkers = [];
-
-function getMarkerList() {
-  for(marker in registeredMarkers){
-    var latlng =  marker.getLngLat();
-    var div =  "<div class=\"tile is-fullwidth\">" + latlng.lat.toFixed(3) + ":"+ latlng.lng.toFixed(3) + "</div>";
-    $("#listeMarqueurs").append(div);
-  }
-  $( "#listeMarqueurs" ).dialog();
 }
 
 
+function showFavori() {
+  $("#listeMarqueurs").dialog({ width: 600, height: 500});
+}
+
+var mouseOverDragZone = false;
+
 $(function () {
   $(".draggable").draggable({
-    revert : function(event, ui) {
-      // on older version of jQuery use "draggable"
-      // $(this).data("draggable")
-      // on 2.x versions of jQuery use "ui-draggable"
-      // $(this).data("ui-draggable")
-      $(this).data("uiDraggable").originalPosition = {
-          top : 0,
-          left : 0
-      };
-      // return boolean
-      return !event;
-      // that evaluate like this:
-      // return event !== false ? false : true;
-  },
+    revert:true, 
     containment: "document",
     scroll: false,
     stack: ".draggable",
     distance: 0,
   });
+
   $("#map").droppable({
+    greedy: false,
+    tolerance: 'fit',
+    accept: ".draggable",
     drop: function (event, ui) {
-      alert("DROP EN COURS");
-      if (mouseOverDragZone) {
-        $(this).addClass("ui-state-highlight").hide();
+      $(this).find('').append(ui.draggable);
+
+      var coordinates = ui.draggable.attr("value");
+      var latlng = coordinates.split(",");
+      map.flyTo({
+        center: latlng,
+        essential: true,
+        zoom: 11.2,
+      });
       }
-    },
   });
 });
 
@@ -101,20 +97,43 @@ const maine = {
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoiYW50aG9ueWtwIiwiYSI6ImNrenNuaDF1djAzNmwyd280dTNpcm9lY2sifQ.HIbK50uFeTfJrQTL4Lizww";
+  mapboxgl.setRTLTextPlugin(
+    'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js'
+    )
 const map = new mapboxgl.Map({
   container: "map",
   style: "mapbox://styles/anthonykp/ckzsnjcmp001q14qmss8n4zc9/draft",
-  center: [2.339, 48.854],
+  center: [2.352,48.856],
   zoom: 11.44,
 });
 
 const canvas = map.getCanvasContainer();
 
 const marker = new mapboxgl.Marker({
-  color: "blue", // color it red
+  color: "blue"
 });
 
+let registeredMarkers = [];
+
+// la configuration de base de la map
 map.on("load", () => {
+
+  map.setLayoutProperty('country-label', 'text-field', [
+    'format',
+    ['get', 'name_fr'],
+    { 'font-scale': 1.2 },
+    '\n',
+    {},
+    ['get', 'name'],
+    {
+    'font-scale': 0.8,
+    'text-font': [
+    'literal',
+    ['DIN Offc Pro Italic', 'Arial Unicode MS Regular']
+    ]
+    }
+    ]);
+
   map.addSource("point", {
     type: "geojson",
     data: geojson,
@@ -409,67 +428,238 @@ map.on("load", () => {
     $(".coordonnees").text(latlng.lat.toFixed(3) + ":" + latlng.lng.toFixed(3));
   }
 
-  function favHide(){
+  function favHide() {
     $("#favori").css("display", "none");
   }
 
-  function placeHide(){
+  function placeHide() {
     $(".adresse").css("display", "none");
   }
 
   function mapCenterMarker() {
-    if(marker.getLngLat != map.getCenter()){
-    marker.setLngLat(map.getCenter());
-    marker.addTo(map);
-    
-    actualLatLgn();
-    
+    if (marker.getLngLat != map.getCenter()) {
+      marker.setLngLat(map.getCenter());
+      marker.addTo(map);
 
-    requestAnimationFrame(mapCenterMarker);
+      actualLatLgn();
+
+      requestAnimationFrame(mapCenterMarker);
     }
-
   }
 
   requestAnimationFrame(() => mapCenterMarker());
 
   function location() {
     var latlng = map.getCenter();
-    $("#favori").css("display","flex");
-
-    const newMarker = new mapboxgl.Marker({
-      color: 'yellow'
-    });
-
-    newMarker.setLngLat(map.getCenter());
-    newMarker.addTo(map);
-
-    alert(registeredMarkers.length);
-    registeredMarkers.push(newMarker);
-    alert(registeredMarkers.length);
-
-    getMarkerList();
+    $("#favori").css("display", "flex");
 
     $.ajax({
       type: "GET",
-      url:"https://nominatim.openstreetmap.org/reverse?lat=" +
-      latlng.lat +
-      "&lon=" +
-      latlng.lng,
+      url:
+        "https://nominatim.openstreetmap.org/reverse?lat=" +
+        latlng.lat +
+        "&lon=" +
+        latlng.lng,
       success: function (xml) {
         adresse = $(xml).find("result").text();
-        $("#adresse").text(adresse); 
-        $(".adresse").css("display","block");
+        $("#adresse").text(adresse);
+        $(".adresse").css("display", "block");
       },
     });
   }
 
+  function addFavori(){
+    var latlng = map.getCenter();
+
+    const newMarker = new mapboxgl.Marker({
+      color: "yellow",
+    });
+
+    newMarker.setLngLat(latlng);
+    newMarker.addTo(map);
+
+    registeredMarkers.push(newMarker);
+
+    $.ajax({
+      type: "GET",
+      url:
+        "https://nominatim.openstreetmap.org/reverse?lat=" +
+        latlng.lat +
+        "&lon=" +
+        latlng.lng,
+      success: function (xml) {
+        adresse = $(xml).find("result").text();
+        $("#adresse").text(adresse);
+        $(".adresse").css("display", "block");
+        updateMarkerList(xml);
+      },
+    });
+  }
+  
   $("#location").click(location);
+  $("#favori").click(addFavori);
+
+
+    $(document).on('click', '.mapboxgl-marker', function() {
+      map.flyTo({
+        center: $(this).features[0].geometry.coordinates
+        });
+    });
+
+    $(document).on('mouseenter', '.mapboxgl-marker', function() {
+      map.getCanvas().style.cursor = 'pointer';
+    });
+
+    $(document).on('mouseleave', '.mapboxgl-marker', function() {
+      map.getCanvas().style.cursor = '';
+    });
 
   function on() {
     document.getElementById("overlay").style.display = "block";
   }
-  
+
   function off() {
     document.getElementById("overlay").style.display = "none";
   }
+
+  // Bouton pour lancer la géolocalisation
+  /*var button = document.getElementById("locate-position");
+  button.addEventListener("click", function () {
+    map
+      .locate({
+        setView: true,
+        watch: true,
+      })  This will return map so you can do chaining 
+      // Si localisation trouvée, nous renvoie au lieu situé
+      .on("locationfound", function (e) {
+        latitude = e.latitude;
+        longitude = e.longitude;
+        var marker = L.marker([e.latitude, e.longitude])
+          .addTo(map)
+          .bindPopup("Vous êtes ici :D");
+        marker.on("mouseover", function (e) {
+          this.openPopup();
+        });
+        marker.on("mouseout", function (e) {
+          this.closePopup();
+        });
+        map.addLayer(marker);
+      })
+      // Si localisation mauvaise, renvoie un message d'erreur dans la console
+      .on("locationerror", function (e) {
+        alert("Location access denied.");
+      });
+    //Pour le bouton centrez votre position, vous renvoie à votre position
+    var buttonLocalisation = document.getElementById("localisation");
+    buttonLocalisation.addEventListener("click", function () {
+      var mark = [latitude, longitude];
+      map.setView(mark, 20);
+    });
+  });*/
 });
+
+function adresseParser(xml) {
+  var adresse = "";
+
+  const leisure = $(xml).find("addressparts").find("leisure").text();
+  const amenity = $(xml).find("addressparts").find("amenity").text();
+  const building = $(xml).find("addressparts").find("building").text();
+
+  if (leisure != "") {
+    adresse += leisure;
+  } else if(amenity != ""){
+    adresse += amenity;
+  } else if(building != ""){
+    adresse += building;
+  }
+
+  const house_number = $(xml).find("addressparts").find("house_number").text();
+  if (house_number != "") {
+    if (adresse != "") {
+      adresse += ", ";
+    }
+    adresse += house_number;
+  }
+
+  const road = $(xml).find("addressparts").find("road").text();
+  if (road != "") {
+    if (adresse != "") {
+      adresse += ", ";
+    }
+    adresse += road;
+  }
+
+  const suburb = $(xml).find("addressparts").find("suburb").text();
+  const town = $(xml).find("addressparts").find("town").text();
+  const municipality = $(xml).find("addressparts").find("municipality").text();
+  const city = $(xml).find("addressparts").find("city").text();
+  const postcode = $(xml).find("addressparts").find("postcode").text();
+
+  if (postcode != "") {
+    if (adresse != "") {
+      adresse += " ";
+    }
+    adresse += postcode;
+  }
+
+  if (suburb != "") {
+    if (adresse != "") {
+      adresse += ", ";
+    }
+    adresse += suburb;
+  }
+
+  if (town != "") {
+    if (adresse != "") {
+      adresse += ", ";
+    }
+    adresse += town;
+  }
+
+  if (municipality != "" && city == "" && town == "" && suburb == "") {
+    if (adresse != "") {
+      adresse += ", ";
+    }
+    adresse += municipality;
+  }
+
+  if (city != "" && municipality != "") {
+    if (adresse != "") {
+      adresse += ", ";
+    }
+    adresse += city;
+  }
+
+  const county = $(xml).find("addressparts").find("county").text();
+  if (county != "") {
+    if (adresse != "") {
+      adresse += ", ";
+    }
+    adresse += county;
+  }
+
+  const country = $(xml).find("addressparts").find("country").text();
+  if (country != "") {
+    if (adresse != "") {
+      adresse += ", ";
+    }
+    adresse += country;
+  }
+
+  return adresse;
+}
+
+function updateMarkerList(xml) {
+  var length = registeredMarkers.length;
+  var marker = registeredMarkers[length - 1];
+  var latlng = marker.getLngLat();
+  var str = "";
+  var strLatLng = str.concat(latlng.lng + "," + latlng.lat);
+
+  var adresse = adresseParser(xml);
+  
+  var html = "<tr><th>" + length + "</th>" + 
+  "<td><button class=\"button\" value=\"" + latlng.lng + "," + latlng.lat +"\" onclick=flyToMarker()><i class=\"fa-solid fa-map-location-dot\"></i></button></td><td>" + adresse + "</td></tr>";
+  $("#messageAucun").text("");
+  $("#table-body").append(html);
+}

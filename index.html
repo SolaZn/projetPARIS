@@ -17,10 +17,14 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/game.css" />
+    <link rel="icon" href="content/pin.png"/>
+    <!-- <a href="https://www.flaticon.com/free-icons/pin" title="pin icons">Pin icons created by Pixel perfect - Flaticon</a> -->
+
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
-
+    
+    <script src="https://kit.fontawesome.com/d9b9925bfe.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
     <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
 
@@ -64,7 +68,7 @@
             class="tile box buttons are-normal is-align-items-center is-flex"
           >
             <button id="location" class="button is-fullwidth is-responsive box">
-              🔵 Où suis-je ?
+              <i class="fa-solid fa-location-dot"></i> Où suis-je ?
             </button>
             <button
               id="favori"
@@ -72,6 +76,12 @@
               style="display: none"
             > 
               ⭐ Ajouter aux favoris
+            </button>
+            <button
+              id="listeFavori"
+              class="button is-fullwidth is-responsive box"
+              >
+              <i class="fa-solid fa-bookmark"></i> Favoris
             </button>
           </div>
         </div>
@@ -90,19 +100,48 @@
             ></p>
           </div>
         </div>
-        <div id="buttonGroupe" >
+        <!--<div id="buttonGroupe">
           <button id="locate-position" class="btn btn-info uk-button uk-button-success" type="button">Activez votre géolocalisation !</button>
           <button id="localisation" class="btn btn-info uk-button uk-button-success" type="button">Recentrez sur votre position ! </button>
           <button id="boutonCentre" class="btn btn-info uk-button uk-button-success" type="button">Recentrez la map</button>
-      </div>
+      </div>-->
         <div class="tile is-parent is-narrow has-text-white">
-          <div class="tile is-child box">
-            <p class="draggable tile is-child box">Zone draggables</p>
+          <div class="columns tile is-child box is-multiline">
+            <div class="column draggable tile is-child box is-6" value="13.39382710467683,52.51386579903857"><a href="https://www.flaticon.com/fr/icones-gratuites/allemagne" title="allemagne icônes"></a>
+              <figure class="image">
+                <img src="content/brandebourg.png">
+              </figure>
+            </div>
+            <div class="column draggable tile is-child box is-6" value="2.352,48.856"><a href="https://www.flaticon.com/fr/icones-gratuites/paris" title="paris icônes"></a>
+              <figure class="image">
+                <img src="content/tour-eiffel (1).png">
+              </figure>
+            </div>
+            <div class="column draggable tile is-child box is-6" value="139.7639853049959,35.69605879759992"><a href="https://www.flaticon.com/free-icons/tokyo-tower" title="tokyo tower icons"></a>
+              <figure class="image">
+                <img src="content/tokyo-tower.png">
+              </figure>
+            </div>
+            <div class="column draggable tile is-child box is-6" value="-74.00567269723963,40.71113831868968"><a href="https://www.flaticon.com/free-icons/statue-of-liberty" title="statue-of-liberty icons"></a>
+              <figure class="image">
+                <img src="content/statue-of-liberty.png">
+              </figure>
+            </div>
           </div>
         </div>
         <div class="tile is-parent is-narrow has-text-white">
-          <div class="tile is-child box">
-            <p class="tile is-child box">Heure?Boutons de connexion?</p>
+          <div
+            class="tile box buttons are-normal is-align-items-center is-flex" style="max-height: 75%;"
+          >
+            <button id="location" class="button is-fullwidth is-responsive box has-background-success	has-text-white">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i> Se connecter
+            </button>
+            <button
+              id="listeFavori"
+              class="button is-fullwidth is-responsive box has-background-info has-text-white"
+              >
+              <i class="fa-solid fa-user-plus"></i> S'inscrire
+            </button>
           </div>
         </div>
       </div>
@@ -116,15 +155,25 @@
       </div>
 
       <pre id="coordinates" class="coordinates" style="display: none"></pre>
-      <div id="board" class="column" style="display: none">
-        <p>Drag me to my target</p>
-      </div>
     
      
     </div>
-    <div id="listeMarqueurs" class="modal" title="Mes marqueurs">
-      Liste
-    </div>
+    <section id="listeMarqueurs" class="modal" title="Mes marqueurs">
+        <p id="messageAucun">Aucun marqueur enregistré</p>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Numéro</th>
+              <th>  </th>
+              <th>Adresse</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <div id="overlay">
       <form class="box" onsubmit="handle(); return false;">
         <div class="field">
