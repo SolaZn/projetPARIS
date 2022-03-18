@@ -1,13 +1,13 @@
 $("#listeFavori").click(showFavori);
 
-function flyToMarker() {
-  var coordinates = event.target.value;
+function flyToMarker(value) {
+  var coordinates = value;
   var latlng = coordinates.split(",");
 
   map.flyTo({
     center: latlng,
     essential: true,
-    zoom: 12,
+    zoom: 16,
   });
 }
 
@@ -660,7 +660,7 @@ function updateMarkerList(xml) {
   var adresse = adresseParser(xml);
   
   var html = "<tr><th>" + length + "</th>" + 
-  "<td><button class=\"button\" value=\"" + latlng.lng + "," + latlng.lat +"\" onclick=flyToMarker()><i class=\"fa-solid fa-map-location-dot\"></i></button></td><td>" + adresse + "</td></tr>";
+  "<td><button class=\"button\" value=\"" + latlng.lng + "," + latlng.lat +"\" onclick=flyToMarker(this.value)><i class=\"fa-solid fa-map-location-dot\"></i></button></td><td>" + adresse + "</td></tr>";
   $("#messageAucun").text("");
   $("#table-body").append(html);
 }
