@@ -1,7 +1,7 @@
 $("#listeFavori").click(showFavori);
 var moment;
 var globaltimeZone = "Europe/Paris";
-var globalCoordinates = {'lng' : 2.352, 'lat' : 48.856};
+var globalCoordinates = { 'lng' : 2.352, 'lat' : 48.856 };
 
 function favHide() {
   $("#favori").css("display", "none");
@@ -15,15 +15,15 @@ function placeHide() {
 function flyToMarker(value) {
   var coordinates = value;
   var latlng = coordinates.split(",");
-  globalCoordinates = {'lng' : latlng[1], 'lat' : latlng[0]}
+  globalCoordinates = { lng: latlng[1], lat: latlng[0] };
 
   map.flyTo({
     center: latlng,
     essential: true,
     zoom: 16,
-  });  
+  });
 
-  map.once("moveend", () =>{
+  map.once("moveend", () => {
     var latlng = map.getCenter();
 
     $.ajax({
@@ -40,7 +40,6 @@ function flyToMarker(value) {
         $(".adresse").css("display", "block");
       },
     });
-
   });
 }
 
@@ -71,9 +70,9 @@ function getTime(timeZone) {
       success: function (xml) {
         var country = $(xml).find("addressparts").find("country").text();
         globalCoordinates = latlng;
-        if(country != null){
-        $("#paysLocal").html(country + "<br/>");
-        }else{
+        if (country != null) {
+          $("#paysLocal").html(country + "<br/>");
+        } else {
           $("#paysLocal").html("Ici<br/>");
         }
       },
@@ -126,11 +125,13 @@ function updateTimeOffset() {
         location.lat +
         ".json?access_token=pk.eyJ1IjoiYW50aG9ueWtwIiwiYSI6ImNrenNuaDF1djAzNmwyd280dTNpcm9lY2sifQ.HIbK50uFeTfJrQTL4Lizww",
       success: function (json) {
-        try{
-        const userTimezone = json.features[0].properties.TZID;
-        getTime(userTimezone);  
-        }catch (error) {
-          console.log("Could not retrieve timezone; maybe try being over the land instead of the sea ?");
+        try {
+          const userTimezone = json.features[0].properties.TZID;
+          getTime(userTimezone);
+        } catch (error) {
+          console.log(
+            "Could not retrieve timezone; maybe try being over the land instead of the sea ?"
+          );
         }
       },
     });
@@ -139,25 +140,25 @@ function updateTimeOffset() {
 
 $(function () {
   getTime("Europe/Paris");
-  
+
   $(".draggable").draggable({
     revert: true,
     containment: "document",
     scroll: false,
     stack: ".draggable",
     distance: 0,
-    helper: function() {
+    helper: function () {
       var helper = $(this).clone(); // Untested - I create my helper using other means...
       // jquery.ui.sortable will override width of class unless we set the style explicitly.
-      helper.css({'width': 'inherit', 'height': 'inherit'});
+      helper.css({ width: "inherit", height: "inherit" });
       return helper;
-  },
+    },
     start: function (event, ui) {
       $(this).hide();
-      },
-      stop: function (event, ui) {
-          $(this).show();
-      }
+    },
+    stop: function (event, ui) {
+      $(this).show();
+    },
   });
 
   $("#map").droppable({
@@ -241,14 +242,213 @@ const map = new mapboxgl.Map({
 
 const geocoder = new MapboxGeocoder({
   accessToken: mapboxgl.accessToken,
-  mapboxgl: mapboxgl
-  });
+  mapboxgl: mapboxgl,
+});
 
 const canvas = map.getCanvasContainer();
 
 const marker = new mapboxgl.Marker({
   color: "blue",
 });
+
+function createRoute(value, mode) {
+  var coordinates = value;
+  var latlng = coordinates.split(",");
+  var start_lat;
+  var start_lng;
+
+  function localization(pos) {
+    var crd = pos.coords;
+    start_lat = crd.latitude;
+    start_lng = crd.longitude;
+    getRoute(start_lat, start_lng, latlng, mode);
+  }
+
+  var options = {
+    enableHighAccuracy: true,
+    timeout: 5000,
+    maximumAge: 0,
+  };
+
+  function error(err) {
+    console.warn(`ERREUR (${err.code}): ${err.message}`);
+  }
+
+  navigator.geolocation.getCurrentPosition(localization, error, options);
+}
+
+// create a function to make a directions request
+async function getRoute(start_lat, start_lng, end, mode) {
+  // make a directions request using cycling profile
+  // an arbitrary start will always be the same
+  // only the end or destination will change
+  console.log("début :" + start_lat + "," + start_lng);
+  console.log("fin :" + end);
+  console.log("mode :" + mode);
+
+  var arr = [start_lng, start_lat];
+  var start = mapboxgl.LngLat.convert(arr);
+
+  const query = await fetch(
+    `https://api.mapbox.com/directions/v5/mapbox/${mode}/${start_lng},${start_lat};${end[0]},${end[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}&language=fr-FR`,
+    { method: "GET" }
+  );
+  const json = await query.json();
+  const data = json.routes[0];
+  const route = data.geometry.coordinates;
+
+  const geojson = {
+    type: "Feature",
+    properties: {},
+    geometry: {
+      type: "LineString",
+      coordinates: route,
+    },
+  }
+  // if the route already exists on the map, we'll reset it using setData
+  if (map.getSource("route")) {
+    map.getSource("route").setData(geojson);
+  }
+  // otherwise, we'll make a new request
+  else {
+    map.addLayer({
+      id: "route",
+      type: "line",
+      source: {
+        type: "geojson",
+        data: geojson,
+      },
+      layout: {
+        "line-join": "round",
+        "line-cap": "round",
+      },
+      paint: {
+        "line-color": "#3887be",
+        "line-width": 5,
+        "line-opacity": 0.75,
+      },
+    });
+  }
+
+  const startPt = {
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "Point",
+          coordinates: start,
+        },
+      },
+    ],
+  }
+  if (map.getLayer("start")) {
+    map.getSource("start").setData(startPt);
+  } else {
+    map.addLayer({
+      id: "start",
+      type: "circle",
+      source: {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              properties: {},
+              geometry: {
+                type: "Point",
+                coordinates: start,
+              },
+            },
+          ],
+        },
+      },
+      paint: {
+        "circle-radius": 10,
+        "circle-color": "#f31",
+      },
+    });
+  }
+
+  const arrival = {
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "Point",
+          coordinates: end,
+        },
+      },
+    ],
+  }
+  if (map.getLayer("arrival")) {
+    map.getSource("arrival").setData(arrival);
+  } else {
+    map.addLayer({
+      id: "arrival",
+      type: "circle",
+      source: {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              properties: {},
+              geometry: {
+                type: "Point",
+                coordinates: end,
+              },
+            },
+          ],
+        },
+      },
+      paint: {
+        "circle-radius": 10,
+        "circle-color": "#f30",
+      },
+    });
+  }
+
+  const steps = data.legs[0].steps;
+  var buttonDrive =
+    `<button class="button" value="${start.lng},${start.lat}"onclick=createRoute(this.value, "driving")><i class="fa-solid fa-car"></i></button>`;
+
+  var buttonCycle =
+    `<button class="button" value="${start.lng},${start.lat}"onclick=createRoute(this.value, "cycle")><i class="fa-solid fa-bicycle"></i></button>`;
+
+  var buttonWalk =
+    `<button class="button" value="${start.lng},${start.lat}"onclick=createRoute(this.value, "walking")><i class="fa-solid fa-person-walking"></i></button>`;
+
+  var buttonTraffic =
+    `<button class="button" value="${start.lng},${start.lat}"onclick=createRoute(this.value, "driving-traffic")><i class="fa-solid fa-traffic-light"></i></button>`;
+
+  $("#itineraire-buttons").append(buttonCycle);
+  $("#itineraire-buttons").append(buttonWalk);
+  $("#itineraire-buttons").append(buttonDrive);
+  $("#itineraire-buttons").append(buttonTraffic);
+
+  $("#itineraire-body").html("");
+
+  let tripInstructions = "";
+  var index = 1;
+
+  for (const step of steps) {
+    tripInstructions += "<tr><th>" + index + "</th>";
+    tripInstructions += `<td>${step.maneuver.instruction}</td></tr>`;
+    $("#itineraire-body").append(tripInstructions);
+    index++;
+    tripInstructions = "";
+  }
+
+  index = 0;
+
+  $("#directions").dialog({ width: 600, height: 500 });
+}
 
 let registeredMarkers = [];
 
@@ -464,7 +664,6 @@ map.on("load", () => {
   map.addControl(new mapboxgl.NavigationControl());
 
   document.getElementById("geocoder").appendChild(geocoder.onAdd(map));
-
 
   // When a click event occurs on a feature in the places layer, open a popup at the
   // location of the feature, with description HTML from its properties.
@@ -793,7 +992,6 @@ function adresseParser(xml) {
   return adresse;
 }
 
-
 function updateMarkerList(xml) {
   var length = registeredMarkers.length;
   var marker = registeredMarkers[length - 1];
@@ -808,12 +1006,12 @@ function updateMarkerList(xml) {
     latlng.lng +
     "," +
     latlng.lat +
-    '" onclick=flyToMarker(this.value)><i class="fa-solid fa-map-location-dot"></i></button></td>' +
+    '" onclick=flyToMarker(this.value, "cycling")><i class="fa-solid fa-map-location-dot"></i></button></td>' +
     '<td><button class="button" value="' +
     latlng.lng +
     "," +
     latlng.lat +
-    '"onclick=createRoute(this.value)><i class="fa-solid fa-route"></i></button></td><td>' +
+    '"onclick=createRoute(this.value, "cycling")><i class="fa-solid fa-route"></i></button></td><td>' +
     adresse +
     "</td></tr>";
   $("#messageAucun").text("");
