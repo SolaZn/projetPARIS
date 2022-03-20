@@ -416,16 +416,16 @@ async function getRoute(start_lat, start_lng, end, mode) {
 
   const steps = data.legs[0].steps;
   var buttonDrive =
-    `<button class="button" value="${start.lng},${start.lat}"onclick=createRoute(this.value, "driving")><i class="fa-solid fa-car"></i></button>`;
+    `<button class="button" value="${start.lng},${start.lat}" onclick=createRoute(this.value\,"driving")><i class="fa-solid fa-car"></i></button>`;
 
   var buttonCycle =
-    `<button class="button" value="${start.lng},${start.lat}"onclick=createRoute(this.value, "cycle")><i class="fa-solid fa-bicycle"></i></button>`;
+    `<button class="button" value="${start.lng},${start.lat}" onclick=createRoute(this.value\,"cycling")><i class="fa-solid fa-bicycle"></i></button>`;
 
   var buttonWalk =
-    `<button class="button" value="${start.lng},${start.lat}"onclick=createRoute(this.value, "walking")><i class="fa-solid fa-person-walking"></i></button>`;
+    `<button class="button" value="${start.lng},${start.lat}" onclick=createRoute(this.value\,"walking")><i class="fa-solid fa-person-walking"></i></button>`;
 
   var buttonTraffic =
-    `<button class="button" value="${start.lng},${start.lat}"onclick=createRoute(this.value, "driving-traffic")><i class="fa-solid fa-traffic-light"></i></button>`;
+    `<button class="button" value="${start.lng},${start.lat}" onclick=createRoute(this.value\,"driving-traffic")><i class="fa-solid fa-traffic-light"></i></button>`;
 
   $("#itineraire-buttons").append(buttonCycle);
   $("#itineraire-buttons").append(buttonWalk);
@@ -1005,13 +1005,13 @@ function updateMarkerList(xml) {
     '<td><button class="button" value="' +
     latlng.lng +
     "," +
-    latlng.lat +
-    '" onclick=flyToMarker(this.value, "cycling")><i class="fa-solid fa-map-location-dot"></i></button></td>' +
+    latlng.lat + "," +
+    '" onclick=flyToMarker(this.value)><i class="fa-solid fa-map-location-dot"></i></button></td>' +
     '<td><button class="button" value="' +
     latlng.lng +
     "," +
     latlng.lat +
-    '"onclick=createRoute(this.value, "cycling")><i class="fa-solid fa-route"></i></button></td><td>' +
+    '"onclick=createRoute(this.value\,"cycling")><i class="fa-solid fa-route"></i></button></td><td>' +
     adresse +
     "</td></tr>";
   $("#messageAucun").text("");
