@@ -3,14 +3,44 @@ var moment;
 var globaltimeZone = "Europe/Paris";
 var globalCoordinates = {'lng' : 2.352, 'lat' : 48.856};
 
+function favHide() {
+  $("#favori").css("display", "none");
+}
+
+function placeHide() {
+  $("#messageAdresse").text("Ici s'affichera votre dernier point posé");
+  $("#adresse").css("display", "none");
+}
+
 function flyToMarker(value) {
   var coordinates = value;
   var latlng = coordinates.split(",");
+  globalCoordinates = {'lng' : latlng[1], 'lat' : latlng[0]}
 
   map.flyTo({
     center: latlng,
     essential: true,
     zoom: 16,
+  });  
+
+  map.once("moveend", () =>{
+    var latlng = map.getCenter();
+
+    $.ajax({
+      type: "GET",
+      url:
+        "https://nominatim.openstreetmap.org/reverse?lat=" +
+        latlng.lat +
+        "&lon=" +
+        latlng.lng,
+      success: function (xml) {
+        adresse = $(xml).find("result").text();
+        $("#messageAdresse").text("Localisation du point recherché");
+        $("#adresse").text(adresse);
+        $(".adresse").css("display", "block");
+      },
+    });
+
   });
 }
 
@@ -18,10 +48,6 @@ function bigMapChange() {
   var latlng = map.getCenter();
   var diffLat = Math.abs(globalCoordinates.lat - latlng.lat);
   var diffLng = Math.abs(globalCoordinates.lng - latlng.lng);
-
-  console.log("aaa");
-  console.log(diffLat);
-  console.log(diffLng);
 
   return diffLat > 0.5 || diffLng > 0.2;
 }
@@ -43,14 +69,13 @@ function getTime(timeZone) {
         "&lon=" +
         latlng.lng,
       success: function (xml) {
-        country = $(xml).find("addressparts").find("country").text();
-        if(country != null){
-        $("#paysLocal").html(country + "<br/>nous sommes le ");
-        }else{
-          $("#paysLocal").html("Ici, nous sommes le ");
-
-        }
+        var country = $(xml).find("addressparts").find("country").text();
         globalCoordinates = latlng;
+        if(country != null){
+        $("#paysLocal").html(country + "<br/>");
+        }else{
+          $("#paysLocal").html("Ici<br/>");
+        }
       },
     });
   }
@@ -59,20 +84,25 @@ function getTime(timeZone) {
 
   var d = new Date().toUTCString();
   moment.locale("fr");
-  var date = moment.utc(d).tz(globaltimeZone).format("DD/MM/YYYY à HH:mm:ss");
-  // mettre "le 19 mars 2022 à xx:xx:xx" comme format
+  var time = moment.utc(d).tz(globaltimeZone);
+  var date = time.format("DD/MM/YYYY");
+  var heure = time.format("HH:mm:ss");
 
   // return time as a string
-  $("#heureLocale").text(date);
+  $("#heureLocale").html(heure);
+  $("#dateLocale").html(date);
 }
 
 function getTimeNow() {
   var d = new Date().toUTCString();
   moment.locale("fr");
-  var date = moment.utc(d).tz(globaltimeZone).format("DD/MM/YYYY à HH:mm:ss");
+  var time = moment.utc(d).tz(globaltimeZone);
+  var date = time.format("DD/MM/YYYY");
+  var heure = time.format("HH:mm:ss");
 
   // return time as a string
-  $("#heureLocale").text(date);
+  $("#heureLocale").html(heure);
+  $("#dateLocale").html(date);
 }
 
 function actualLatLgn() {
@@ -85,6 +115,8 @@ function updateTimeOffset() {
   var location = actualLatLgn();
 
   if (bigMapChange()) {
+    placeHide();
+    favHide();
     $.ajax({
       type: "GET",
       url:
@@ -94,8 +126,12 @@ function updateTimeOffset() {
         location.lat +
         ".json?access_token=pk.eyJ1IjoiYW50aG9ueWtwIiwiYSI6ImNrenNuaDF1djAzNmwyd280dTNpcm9lY2sifQ.HIbK50uFeTfJrQTL4Lizww",
       success: function (json) {
+        try{
         const userTimezone = json.features[0].properties.TZID;
-        getTime(userTimezone);
+        getTime(userTimezone);  
+        }catch (error) {
+          console.log("Could not retrieve timezone; maybe try being over the land instead of the sea ?");
+        }
       },
     });
   }
@@ -103,13 +139,25 @@ function updateTimeOffset() {
 
 $(function () {
   getTime("Europe/Paris");
-
+  
   $(".draggable").draggable({
     revert: true,
     containment: "document",
     scroll: false,
     stack: ".draggable",
     distance: 0,
+    helper: function() {
+      var helper = $(this).clone(); // Untested - I create my helper using other means...
+      // jquery.ui.sortable will override width of class unless we set the style explicitly.
+      helper.css({'width': 'inherit', 'height': 'inherit'});
+      return helper;
+  },
+    start: function (event, ui) {
+      $(this).hide();
+      },
+      stop: function (event, ui) {
+          $(this).show();
+      }
   });
 
   $("#map").droppable({
@@ -191,6 +239,11 @@ const map = new mapboxgl.Map({
   zoom: 11.44,
 });
 
+const geocoder = new MapboxGeocoder({
+  accessToken: mapboxgl.accessToken,
+  mapboxgl: mapboxgl
+  });
+
 const canvas = map.getCanvasContainer();
 
 const marker = new mapboxgl.Marker({
@@ -204,7 +257,6 @@ $(document).ready(function () {
 });
 // la configuration de base de la map
 map.on("load", () => {
-  console.log(window);
   globalCoordinates = map.getCenter();
 
   map.setLayoutProperty("country-label", "text-field", [
@@ -411,6 +463,9 @@ map.on("load", () => {
 
   map.addControl(new mapboxgl.NavigationControl());
 
+  document.getElementById("geocoder").appendChild(geocoder.onAdd(map));
+
+
   // When a click event occurs on a feature in the places layer, open a popup at the
   // location of the feature, with description HTML from its properties.
   map.on("click", "places", (e) => {
@@ -512,14 +567,6 @@ map.on("load", () => {
     map.once("touchend", onUp);
   });
 
-  function favHide() {
-    $("#favori").css("display", "none");
-  }
-
-  function placeHide() {
-    $(".adresse").css("display", "none");
-  }
-
   function mapCenterMarker() {
     if (marker.getLngLat != map.getCenter()) {
       marker.setLngLat(map.getCenter());
@@ -564,6 +611,8 @@ map.on("load", () => {
     newMarker.addTo(map);
 
     registeredMarkers.push(newMarker);
+
+    $("#favori").css("display", "none");
 
     $.ajax({
       type: "GET",
@@ -744,13 +793,11 @@ function adresseParser(xml) {
   return adresse;
 }
 
+
 function updateMarkerList(xml) {
   var length = registeredMarkers.length;
   var marker = registeredMarkers[length - 1];
   var latlng = marker.getLngLat();
-  var str = "";
-  var strLatLng = str.concat(latlng.lng + "," + latlng.lat);
-
   var adresse = adresseParser(xml);
 
   var html =
@@ -761,7 +808,12 @@ function updateMarkerList(xml) {
     latlng.lng +
     "," +
     latlng.lat +
-    '" onclick=flyToMarker(this.value)><i class="fa-solid fa-map-location-dot"></i></button></td><td>' +
+    '" onclick=flyToMarker(this.value)><i class="fa-solid fa-map-location-dot"></i></button></td>' +
+    '<td><button class="button" value="' +
+    latlng.lng +
+    "," +
+    latlng.lat +
+    '"onclick=createRoute(this.value)><i class="fa-solid fa-route"></i></button></td><td>' +
     adresse +
     "</td></tr>";
   $("#messageAucun").text("");
