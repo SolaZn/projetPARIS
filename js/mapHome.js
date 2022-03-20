@@ -1,6 +1,7 @@
 $("#listeFavori").click(showFavori);
-var moment; 
+var moment;
 var globaltimeZone = "Europe/Paris";
+var globalCoordinates = {'lng' : 2.352, 'lat' : 48.856};
 
 function flyToMarker(value) {
   var coordinates = value;
@@ -13,42 +14,62 @@ function flyToMarker(value) {
   });
 }
 
+function bigMapChange() {
+  var latlng = map.getCenter();
+  var diffLat = Math.abs(globalCoordinates.lat - latlng.lat);
+  var diffLng = Math.abs(globalCoordinates.lng - latlng.lng);
+
+  console.log("aaa");
+  console.log(diffLat);
+  console.log(diffLng);
+
+  return diffLat > 0.5 || diffLng > 0.2;
+}
 
 function showFavori() {
-  $("#listeMarqueurs").dialog({ width: 600, height: 500});
+  $("#listeMarqueurs").dialog({ width: 600, height: 500 });
 }
 
 var mouseOverDragZone = false;
 
-function getTime(timeZone){
+function getTime(timeZone) {
   var latlng = map.getCenter();
-  $.ajax({
-    type: "GET",
-    url:
-      "https://nominatim.openstreetmap.org/reverse?lat=" +
-      latlng.lat +
-      "&lon=" +
-      latlng.lng,
-    success: function (xml) {
-      country = $(xml).find("addressparts").find("country").text();
-      $("#paysLocal").text(country + " : nous sommes le ");
-    },
-  });
+  if (bigMapChange()) {
+    $.ajax({
+      type: "GET",
+      url:
+        "https://nominatim.openstreetmap.org/reverse?lat=" +
+        latlng.lat +
+        "&lon=" +
+        latlng.lng,
+      success: function (xml) {
+        country = $(xml).find("addressparts").find("country").text();
+        if(country != null){
+        $("#paysLocal").html(country + "<br/>nous sommes le ");
+        }else{
+          $("#paysLocal").html("Ici, nous sommes le ");
+
+        }
+        globalCoordinates = latlng;
+      },
+    });
+  }
 
   globaltimeZone = timeZone;
 
   var d = new Date().toUTCString();
   moment.locale("fr");
-  var date = moment.utc(d).tz(globaltimeZone).format('DD/MM/YYYY à HH:mm:ss');
+  var date = moment.utc(d).tz(globaltimeZone).format("DD/MM/YYYY à HH:mm:ss");
+  // mettre "le 19 mars 2022 à xx:xx:xx" comme format
 
   // return time as a string
   $("#heureLocale").text(date);
 }
 
-function getTimeNow(){
+function getTimeNow() {
   var d = new Date().toUTCString();
   moment.locale("fr");
-  var date = moment.utc(d).tz(globaltimeZone).format('DD/MM/YYYY à HH:mm:ss');
+  var date = moment.utc(d).tz(globaltimeZone).format("DD/MM/YYYY à HH:mm:ss");
 
   // return time as a string
   $("#heureLocale").text(date);
@@ -60,27 +81,31 @@ function actualLatLgn() {
   return latlng;
 }
 
-
-function updateTimeOffset(){
+function updateTimeOffset() {
   var location = actualLatLgn();
 
-  $.ajax({
-    type: "GET",
-    url: "https://api.mapbox.com/v4/examples.4ze9z6tv/tilequery/"
-    + location.lng + "," + location.lat + 
-    ".json?access_token=pk.eyJ1IjoiYW50aG9ueWtwIiwiYSI6ImNrenNuaDF1djAzNmwyd280dTNpcm9lY2sifQ.HIbK50uFeTfJrQTL4Lizww",
-    success: function (json) {
-      const userTimezone = json.features[0].properties.TZID;
-      getTime(userTimezone);
-    },
-  });
+  if (bigMapChange()) {
+    $.ajax({
+      type: "GET",
+      url:
+        "https://api.mapbox.com/v4/examples.4ze9z6tv/tilequery/" +
+        location.lng +
+        "," +
+        location.lat +
+        ".json?access_token=pk.eyJ1IjoiYW50aG9ueWtwIiwiYSI6ImNrenNuaDF1djAzNmwyd280dTNpcm9lY2sifQ.HIbK50uFeTfJrQTL4Lizww",
+      success: function (json) {
+        const userTimezone = json.features[0].properties.TZID;
+        getTime(userTimezone);
+      },
+    });
+  }
 }
 
 $(function () {
   getTime("Europe/Paris");
 
   $(".draggable").draggable({
-    revert:true, 
+    revert: true,
     containment: "document",
     scroll: false,
     stack: ".draggable",
@@ -89,10 +114,10 @@ $(function () {
 
   $("#map").droppable({
     greedy: false,
-    tolerance: 'fit',
+    tolerance: "fit",
     accept: ".draggable",
     drop: function (event, ui) {
-      $(this).find('').append(ui.draggable);
+      $(this).find("").append(ui.draggable);
       var coordinates = ui.draggable.attr("value");
       var latlng = coordinates.split(",");
       map.flyTo({
@@ -100,7 +125,7 @@ $(function () {
         essential: true,
         zoom: 11.2,
       });
-    }
+    },
   });
 });
 
@@ -156,48 +181,47 @@ const maine = {
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoiYW50aG9ueWtwIiwiYSI6ImNrenNuaDF1djAzNmwyd280dTNpcm9lY2sifQ.HIbK50uFeTfJrQTL4Lizww";
-  mapboxgl.setRTLTextPlugin(
-    'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js'
-    )
+mapboxgl.setRTLTextPlugin(
+  "https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js"
+);
 const map = new mapboxgl.Map({
   container: "map",
   style: "mapbox://styles/anthonykp/ckzsnjcmp001q14qmss8n4zc9/draft",
-  center: [2.352,48.856],
+  center: [2.352, 48.856],
   zoom: 11.44,
 });
 
 const canvas = map.getCanvasContainer();
 
 const marker = new mapboxgl.Marker({
-  color: "blue"
+  color: "blue",
 });
 
 let registeredMarkers = [];
 
-$(document).ready(function(){
+$(document).ready(function () {
   moment = window.moment;
-
 });
 // la configuration de base de la map
 map.on("load", () => {
   console.log(window);
+  globalCoordinates = map.getCenter();
 
-
-  map.setLayoutProperty('country-label', 'text-field', [
-    'format',
-    ['get', 'name_fr'],
-    { 'font-scale': 1.2 },
-    '\n',
+  map.setLayoutProperty("country-label", "text-field", [
+    "format",
+    ["get", "name_fr"],
+    { "font-scale": 1.2 },
+    "\n",
     {},
-    ['get', 'name'],
+    ["get", "name"],
     {
-    'font-scale': 0.8,
-    'text-font': [
-    'literal',
-    ['DIN Offc Pro Italic', 'Arial Unicode MS Regular']
-    ]
-    }
-    ]);
+      "font-scale": 0.8,
+      "text-font": [
+        "literal",
+        ["DIN Offc Pro Italic", "Arial Unicode MS Regular"],
+      ],
+    },
+  ]);
 
   map.addSource("point", {
     type: "geojson",
@@ -529,7 +553,7 @@ map.on("load", () => {
     });
   }
 
-  function addFavori(){
+  function addFavori() {
     var latlng = map.getCenter();
 
     const newMarker = new mapboxgl.Marker({
@@ -556,24 +580,23 @@ map.on("load", () => {
       },
     });
   }
-  
+
   $("#location").click(location);
   $("#favori").click(addFavori);
 
-
-    $(document).on('click', '.mapboxgl-marker', function() {
-      map.flyTo({
-        center: $(this).features[0].geometry.coordinates
-        });
+  $(document).on("click", ".mapboxgl-marker", function () {
+    map.flyTo({
+      center: $(this).features[0].geometry.coordinates,
     });
+  });
 
-    $(document).on('mouseenter', '.mapboxgl-marker', function() {
-      map.getCanvas().style.cursor = 'pointer';
-    });
+  $(document).on("mouseenter", ".mapboxgl-marker", function () {
+    map.getCanvas().style.cursor = "pointer";
+  });
 
-    $(document).on('mouseleave', '.mapboxgl-marker', function() {
-      map.getCanvas().style.cursor = '';
-    });
+  $(document).on("mouseleave", ".mapboxgl-marker", function () {
+    map.getCanvas().style.cursor = "";
+  });
 
   function on() {
     document.getElementById("overlay").style.display = "block";
@@ -618,17 +641,16 @@ map.on("load", () => {
     });
   });*/
 
-  function timerTimeZone(){
+  function timerTimeZone() {
     updateTimeOffset();
     setTimeout(timerTimeZone, 3000);
   }
-  function timerTime(){
+  function timerTime() {
     getTimeNow();
     setTimeout(timerTime, 1000);
   }
-  setTimeout(timerTime, 1000)
-  setTimeout(timerTimeZone, 3000)
-
+  setTimeout(timerTime, 1000);
+  setTimeout(timerTimeZone, 3000);
 });
 
 function adresseParser(xml) {
@@ -640,9 +662,9 @@ function adresseParser(xml) {
 
   if (leisure != "") {
     adresse += leisure;
-  } else if(amenity != ""){
+  } else if (amenity != "") {
     adresse += amenity;
-  } else if(building != ""){
+  } else if (building != "") {
     adresse += building;
   }
 
@@ -730,9 +752,18 @@ function updateMarkerList(xml) {
   var strLatLng = str.concat(latlng.lng + "," + latlng.lat);
 
   var adresse = adresseParser(xml);
-  
-  var html = "<tr><th>" + length + "</th>" + 
-  "<td><button class=\"button\" value=\"" + latlng.lng + "," + latlng.lat +"\" onclick=flyToMarker(this.value)><i class=\"fa-solid fa-map-location-dot\"></i></button></td><td>" + adresse + "</td></tr>";
+
+  var html =
+    "<tr><th>" +
+    length +
+    "</th>" +
+    '<td><button class="button" value="' +
+    latlng.lng +
+    "," +
+    latlng.lat +
+    '" onclick=flyToMarker(this.value)><i class="fa-solid fa-map-location-dot"></i></button></td><td>' +
+    adresse +
+    "</td></tr>";
   $("#messageAucun").text("");
   $("#table-body").append(html);
 }
