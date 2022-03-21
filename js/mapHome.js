@@ -1,7 +1,7 @@
 $("#listeFavori").click(showFavori);
 var moment;
 var globaltimeZone = "Europe/Paris";
-var globalCoordinates = { 'lng' : 2.352, 'lat' : 48.856 };
+var globalCoordinates = { lng: 2.352, lat: 48.856 };
 
 function favHide() {
   $("#favori").css("display", "none");
@@ -198,7 +198,7 @@ mapboxgl.setRTLTextPlugin(
 );
 const map = new mapboxgl.Map({
   container: "map",
-  style: "mapbox://styles/anthonykp/ckzsnjcmp001q14qmss8n4zc9/draft",
+  style: "mapbox://styles/anthonykp/ckzsnjcmp001q14qmss8n4zc9",
   center: [2.352, 48.856],
   zoom: 11.44,
 });
@@ -240,6 +240,38 @@ function createRoute(value, mode) {
   navigator.geolocation.getCurrentPosition(localization, error, options);
 }
 
+function getPlaces(coords, coords2){
+  var adresse = "";
+  
+  $.ajax({
+    type: "GET",
+    url:
+      "https://nominatim.openstreetmap.org/reverse?lat=" +
+      coords.lat +
+      "&lon=" +
+      coords.lng,
+    success: function (xml) {
+      adresse = adresseParser(xml);
+      $("#destination").html("Itinéraire de <strong>" + adresse + "</strong>");
+      
+    },
+  });
+
+    $.ajax({
+      type: "GET",
+      url:
+        "https://nominatim.openstreetmap.org/reverse?lat=" +
+        coords2.lat +
+        "&lon=" +
+        coords2.lng,
+      success: function (xml) {
+        adresse = adresseParser(xml);
+        $("#destination").append(" à <strong>" + adresse + "</strong>");
+        
+      },
+    });
+}
+
 // create a function to make a directions request
 async function getRoute(start_lat, start_lng, end, mode) {
   // make a directions request using cycling profile
@@ -251,6 +283,9 @@ async function getRoute(start_lat, start_lng, end, mode) {
 
   var arr = [start_lng, start_lat];
   var start = mapboxgl.LngLat.convert(arr);
+
+  var end_arr = mapboxgl.LngLat.convert(end);
+
 
   const query = await fetch(
     `https://api.mapbox.com/directions/v5/mapbox/${mode}/${start_lng},${start_lat};${end[0]},${end[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}&language=fr-FR`,
@@ -267,7 +302,7 @@ async function getRoute(start_lat, start_lng, end, mode) {
       type: "LineString",
       coordinates: route,
     },
-  }
+  };
   // if the route already exists on the map, we'll reset it using setData
   if (map.getSource("route")) {
     map.getSource("route").setData(geojson);
@@ -305,7 +340,7 @@ async function getRoute(start_lat, start_lng, end, mode) {
         },
       },
     ],
-  }
+  };
   if (map.getLayer("start")) {
     map.getSource("start").setData(startPt);
   } else {
@@ -347,7 +382,7 @@ async function getRoute(start_lat, start_lng, end, mode) {
         },
       },
     ],
-  }
+  };
   if (map.getLayer("arrival")) {
     map.getSource("arrival").setData(arrival);
   } else {
@@ -378,24 +413,21 @@ async function getRoute(start_lat, start_lng, end, mode) {
   }
 
   const steps = data.legs[0].steps;
-  var buttonDrive =
-    `<button class="button" value="${start.lng},${start.lat}" onclick=createRoute(this.value\,"driving")><i class="fa-solid fa-car"></i></button>`;
+  var buttonDrive = `<button class="button" value="${end[0]},${end[1]}" onclick=createRoute(this.value\,"driving")><i class="fa-solid fa-car"></i></button>`;
 
-  var buttonCycle =
-    `<button class="button" value="${start.lng},${start.lat}" onclick=createRoute(this.value\,"cycling")><i class="fa-solid fa-bicycle"></i></button>`;
+  var buttonCycle = `<button class="button" value="${end[0]},${end[1]}" onclick=createRoute(this.value\,"cycling")><i class="fa-solid fa-bicycle"></i></button>`;
 
-  var buttonWalk =
-    `<button class="button" value="${start.lng},${start.lat}" onclick=createRoute(this.value\,"walking")><i class="fa-solid fa-person-walking"></i></button>`;
+  var buttonWalk = `<button class="button" value="${end[0]},${end[1]}" onclick=createRoute(this.value\,"walking")><i class="fa-solid fa-person-walking"></i></button>`;
 
-  var buttonTraffic =
-    `<button class="button" value="${start.lng},${start.lat}" onclick=createRoute(this.value\,"driving-traffic")><i class="fa-solid fa-traffic-light"></i></button>`;
+  var buttonTraffic = `<button class="button" value="${end[0]},${end[1]}" onclick=createRoute(this.value\,"driving-traffic")><i class="fa-solid fa-traffic-light"></i></button>`;
 
+  $("#messageItinéraire").html("");
+  $("#itineraire-body").html("");
+  $("#itineraire-buttons").html("");
   $("#itineraire-buttons").append(buttonCycle);
   $("#itineraire-buttons").append(buttonWalk);
   $("#itineraire-buttons").append(buttonDrive);
   $("#itineraire-buttons").append(buttonTraffic);
-
-  $("#itineraire-body").html("");
 
   let tripInstructions = "";
   var index = 1;
@@ -407,8 +439,22 @@ async function getRoute(start_lat, start_lng, end, mode) {
     index++;
     tripInstructions = "";
   }
+  
+  getPlaces(start, end_arr);
+
+  var lat_moyen = (start.lat+end_arr.lat)/2;
+  var lng_moyen = (start.lng+end_arr.lng)/2;
+
+  var latlng_moyen = { 'lat' : lat_moyen, 'lng' : lng_moyen};
+
+  map.flyTo({
+    center: latlng_moyen,
+    essential: true,
+    zoom: 6,
+  });
 
   index = 0;
+
 
   $("#directions").dialog({ width: 600, height: 500 });
 }
@@ -517,13 +563,14 @@ function updateMarkerList(xml) {
     '<td><button class="button" value="' +
     latlng.lng +
     "," +
-    latlng.lat + "," +
+    latlng.lat +
+    "," +
     '" onclick=flyToMarker(this.value)><i class="fa-solid fa-map-location-dot"></i></button></td>' +
     '<td><button class="button" value="' +
     latlng.lng +
     "," +
     latlng.lat +
-    '"onclick=createRoute(this.value\,"cycling")><i class="fa-solid fa-route"></i></button></td><td>' +
+    '"onclick=createRoute(this.value,"cycling")><i class="fa-solid fa-route"></i></button></td><td>' +
     adresse +
     "</td></tr>";
   $("#messageAucun").text("");
@@ -778,4 +825,3 @@ map.on("load", () => {
   setTimeout(timerTime, 1000);
   setTimeout(timerTimeZone, 3000);
 });
-
